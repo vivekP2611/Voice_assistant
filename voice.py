@@ -464,5 +464,5 @@ def server_error(error):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     debug = False  # Disable debug mode to avoid watchdog compatibility issues
-    # Localhost only - microphone works on localhost even with HTTP
-    app.run(host="127.0.0.1", port=port, debug=debug)
+    # Listen on all interfaces (0.0.0.0) for Render deployment
+    app.run(host="0.0.0.0", port=port, debug=debug)

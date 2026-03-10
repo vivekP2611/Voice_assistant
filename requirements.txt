@@ -5,3 +5,4 @@ gTTS==2.3.2
 wikipedia==1.4.0
 python-dotenv==1.0.0
 werkzeug==2.3.0
+gunicorn==21.2.0
