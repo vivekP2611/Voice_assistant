@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Voice AI - Intelligent Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,176C384,192,480,192,576,176C672,160,768,128,864,122.7C960,117,1056,139,1152,144C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            max-width: 800px;
+            width: 100%;
+            padding: 50px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 8px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.15em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 140px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.2);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(245, 87, 108, 0.4);
+        }
+
+        .recording-status {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: 700;
+            color: #764ba2;
+            min-height: 25px;
+            font-size: 1.1em;
+            animation: pulse 1s infinite;
+        }
+
+        .recording-status:empty {
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background-color: #f9f9ff;
+        }
+
+        .output-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 5px solid #667eea;
+            backdrop-filter: blur(5px);
+            animation: slideIn 0.3s ease;
+        }
+
+        .output-section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .output-label {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .output-text {
+            color: #2c3e50;
+            font-size: 1.05em;
+            line-height: 1.8;
+            min-height: 30px;
+            font-weight: 500;
+        }
+
+        .history-section {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 3px solid #ecf0f1;
+        }
+
+        .history-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: #ecf0f1;
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .history-item-command {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.95em;
+        }
+
+        .history-item-response {
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 600;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%);
+            color: #c0392b;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #d5f4e6 0%, #a9dfbf 100%);
+            color: #186a3b;
+            border-left: 4px solid #27ae60;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .audio-status {
+            margin-top: 12px;
+            color: #667eea;
+            font-size: 0.95em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-icon {
+            font-size: 1.2em;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 0.95em;
+            }
+
+            button {
+                min-width: 100px;
+                padding: 12px 20px;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            input[type="text"] {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 15px; right: 20px; background: rgba(255,255,255,0.9); padding: 12px 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 999; backdrop-filter: blur(10px);">
+        <span style="color: #667eea; font-weight: 700; margin-right: 15px;">👤 <span id="userDisplay">User</span></span>
+        <button onclick="logout()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Logout</button>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Smart Voice AI</h1>
+            <p>Your Intelligent Voice Assistant - Ask Anything, Get Instant Answers</p>
+        </div>
+
+        <!-- VOICE INPUT SECTION -->
+        <div class="section">
+            <div class="section-title">🎤 Voice Input (Click & Speak)</div>
+            <div class="recording-status" id="recordingStatus"></div>
+            <div class="button-group">
+                <button class="btn-primary" id="startBtn" onclick="startListening()">🎤 Start Listening</button>
+                <button class="btn-secondary" id="stopBtn" onclick="stopListening()" style="display: none;">⏹️ Stop Listening</button>
+            </div>
+        </div>
+
+        <!-- TEXT INPUT SECTION -->
+        <div class="section">
+            <div class="section-title">📝 Text Input (Type & Send)</div>
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="commandInput" 
+                    placeholder="Type your command... (e.g., What time is it? Open YouTube)" 
+                    onkeypress="if(event.key === 'Enter') submitTextCommand()"
+                    autofocus
+                />
+                <button class="btn-primary" onclick="submitTextCommand()" style="flex: 0; min-width: 100px;">Send</button>
+            </div>
+        </div>
+
+        <!-- MESSAGE CONTAINER -->
+        <div id="messageContainer"></div>
+
+        <!-- VOICE INPUT RESULT -->
+        <div class="output-section" id="speechSection">
+            <div class="output-label">📢 You said:</div>
+            <div class="output-text" id="speech"></div>
+        </div>
+
+        <!-- RESPONSE SECTION -->
+        <div class="output-section" id="responseSection">
+            <div class="output-label">🤖 Assistant says:</div>
+            <div class="output-text" id="response"></div>
+            <div class="audio-status" id="audioStatus"></div>
+            <div class="button-group" style="margin-top: 15px;">
+                <button class="btn-secondary" onclick="speakResponse()">🔊 Read Aloud</button>
+                <button class="btn-secondary" id="stopAudioBtn" onclick="stopAudio()" style="display: none;">⏹️ Stop Audio</button>
+                <button class="btn-secondary" onclick="clearHistory()">🗑️ Clear History</button>
+            </div>
+        </div>
+
+        <!-- HISTORY SECTION -->
+        <div class="history-section">
+            <h3>📋 Command History</h3>
+            <div class="history-list" id="historyList">
+                <p style="color: #999; text-align: center; padding: 20px;">No commands yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Display username
+        function displayUsername() {
+            const username = localStorage.getItem('username') || 'User';
+            document.getElementById('userDisplay').textContent = username;
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('username');
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Display username on page load
+        displayUsername();
+
+        let recognition = null;
+        let isListening = false;
+        let isProcessing = false;
+        let currentAudio = null;
+        let currentUtterance = null;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        function initRecognition() {
+            if (!SpeechRecognition) {
+                showMessage('⚠️ Speech Recognition not supported in this browser', 'error');
+                return false;
+            }
+
+            if (recognition) return true;
+
+            try {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('stopBtn').style.display = 'inline-block';
+                    document.getElementById('recordingStatus').textContent = '🔴 Listening...';
+                    document.getElementById('responseSection').classList.remove('active');
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    document.getElementById('startBtn').style.display = 'inline-block';
+                    document.getElementById('stopBtn').style.display = 'none';
+                    document.getElementById('recordingStatus').textContent = '';
+                };
+
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript + ' ';
+                    }
+                    
+                    transcript = transcript.trim();
+                    if (transcript) {
+                        document.getElementById('speech').textContent = transcript;
+                        document.getElementById('speechSection').classList.add('active');
+                        
+                        if (!isProcessing) {
+                            sendCommand(transcript);
+                        }
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech Recognition Error:', event.error);
+                    
+                    let errorMsg = 'Voice Error: ' + event.error;
+                    if (event.error === 'network') {
+                        errorMsg = '🔌 Network error. Check internet.';
+                    } else if (event.error === 'no-speech') {
+                        errorMsg = '🔇 No speech detected. Try again.';
+                    } else if (event.error === 'not-allowed') {
+                        errorMsg = '🔒 Microphone blocked. Please allow access in browser settings.';
+                    } else if (event.error === 'audio-capture') {
+                        errorMsg = '❌ No microphone found on this device.';
+                    }
+                    
+                    showMessage(errorMsg, 'error');
+                    isProcessing = false;
+                };
+
+                return true;
+            } catch (error) {
+                console.error('Error initializing recognition:', error);
+                return false;
+            }
+        }
+
+        function startListening() {
+            if (!initRecognition()) {
+                showMessage('Microphone not available', 'error');
+                return;
+            }
+
+            if (isProcessing) {
+                showMessage('Still processing... please wait', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('responseSection').classList.remove('active');
+                document.getElementById('speechSection').classList.remove('active');
+                recognition.start();
+            } catch (error) {
+                console.error('Error starting recognition:', error);
+                showMessage('Could not start microphone', 'error');
+            }
+        }
+
+        function stopListening() {
+            if (recognition && isListening) {
+                recognition.stop();
+            }
+        }
+
+        async function sendCommand(command) {
+            if (isProcessing) return;
+            if (!command || command.trim() === '') return;
+
+            isProcessing = true;
+
+            try {
+                // Show response section immediately (no delay message)
+                document.getElementById('responseSection').classList.add('active');
+                document.getElementById('response').textContent = '...';
+                document.getElementById('audioStatus').textContent = '';
+
+                const res = await fetch('/api/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Show response INSTANTLY (no delay)
+                    document.getElementById('response').textContent = data.response;
+                    showMessage('✅', 'success');
+
+                    // Handle URL opening
+                    if (data.action === 'open_url' && data.url) {
+                        setTimeout(() => {
+                            window.open(data.url, '_blank');
+                        }, 200);
+                    }
+
+                    // Auto-speak INSTANTLY after response shown
+                    speakResponse();
+                    loadHistory();
+                } else {
+                    document.getElementById('response').textContent = 'Error: ' + (data.error || 'Failed');
+                    showMessage('❌ Failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('response').textContent = 'Connection error';
+                showMessage('Network error', 'error');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        function submitTextCommand() {
+            if (isProcessing) {
+                showMessage('Processing... please wait', 'error');
+                return;
+            }
+
+            const input = document.getElementById('commandInput');
+            const command = input.value.trim();
+
+            if (command) {
+                document.getElementById('speech').textContent = command;
+                document.getElementById('speechSection').classList.add('active');
+                sendCommand(command);
+                input.value = '';
+            }
+        }
+
+        function speakResponse() {
+            const responseText = document.getElementById('response').textContent;
+            if (!responseText || responseText.includes('Processing')) return;
+
+            stopAudio();
+
+            // Use browser's INSTANT speech synthesis (no server delay!)
+            if ('speechSynthesis' in window) {
+                currentUtterance = new SpeechSynthesisUtterance(responseText);
+                currentUtterance.rate = 1.0;
+                currentUtterance.pitch = 1.0;
+                currentUtterance.volume = 1.0;
+                currentUtterance.lang = 'en-US';
+
+                currentUtterance.onstart = () => {
+                    document.getElementById('stopAudioBtn').style.display = 'inline-block';
+                    document.getElementById('audioStatus').textContent = '🔊 Speaking...';
+                };
+
+                currentUtterance.onend = () => {
+                    document.getElementById('stopAudioBtn').style.display = 'none';
+                    document.getElementById('audioStatus').textContent = '✅ Done speaking';
+                    setTimeout(() => {
+                        document.getElementById('audioStatus').textContent = '';
+                    }, 2000);
+                };
+
+                currentUtterance.onerror = (event) => {
+                    console.error('Speech error:', event.error);
+                    document.getElementById('audioStatus').textContent = '';
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            } else {
+                showMessage('Speech synthesis not available', 'error');
+            }
+        }
+
+        function stopAudio() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                currentUtterance = null;
+                document.getElementById('stopAudioBtn').style.display = 'none';
+                document.getElementById('audioStatus').textContent = '';
+            }
+        }
+
+        function showMessage(msg, type) {
+            const container = document.getElementById('messageContainer');
+            const div = document.createElement('div');
+            div.className = 'message ' + type;
+            div.textContent = msg;
+            container.innerHTML = '';
+            container.appendChild(div);
+
+            setTimeout(() => {
+                if (div.parentNode) div.remove();
+            }, 4000);
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/history?limit=10');
+                const data = await res.json();
+
+                const historyList = document.getElementById('historyList');
+                if (data.success && data.history && data.history.length > 0) {
+                    historyList.innerHTML = data.history.map(item => `
+                        <div class="history-item">
+                            <div class="history-item-command">Q: ${escapeHtml(item.command)}</div>
+                            <div class="history-item-response">A: ${escapeHtml(item.response)}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    historyList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No commands yet</p>';
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all history?')) {
+                document.getElementById('historyList').innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No commands yet</p>';
+                showMessage('History cleared', 'success');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('load', () => {
+            loadHistory();
+            initRecognition();
+        });
+    </script>
+</body>
+</html>
