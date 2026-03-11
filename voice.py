@@ -15,7 +15,8 @@ from functools import lru_cache, wraps
 
 load_dotenv()
 
-app = Flask(__name__)
+# Configure Flask to find templates folder correctly
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'))
 app.config['JSON_SORT_KEYS'] = False
 app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-this-in-production')
 
